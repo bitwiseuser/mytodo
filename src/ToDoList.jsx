@@ -1,19 +1,31 @@
 import './index.css';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 function ToDoList() {
 
-
-    const [tasks, setTasks] = useState([]);
-    const [newTask, setNewTask] = useState("");
+    var [tasks, setTasks] = useState([]);
+    var [newTask, setNewTask] = useState("");
 
     function handleInputChange(event) {
         setNewTask(event.target.value);
     }
 
+    useEffect(() => {
+        try {
+            var storedTasks = JSON.parse(localStorage.getItem("Tasks"));
+            if (storedTasks !== null && storedTasks.length > 0) {
+                setTasks(storedTasks);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }, []);
+
     function addTask() {
         if (newTask.trim() !== "") {
-            setTasks(t => [...t, newTask]);
+            tasks.push(newTask)
+            localStorage.setItem("Tasks", JSON.stringify(tasks));
             setNewTask("");
         }
     }
@@ -21,21 +33,26 @@ function ToDoList() {
     function deleteTask(index) {
         const updatedTasks = tasks.filter((_, i) => i !== index);
         setTasks(updatedTasks);
+        localStorage.setItem("Tasks", JSON.stringify(updatedTasks));
     }
 
     function moveTaskUp(index) {
         if (index > 0) {
             const updatedTasks = [...tasks];
-            [updatedTasks[index], updatedTasks[index - 1]] = [updatedTasks[index - 1], updatedTasks[index]];
+            [updatedTasks[index], updatedTasks[index - 1]] =
+                [updatedTasks[index - 1], updatedTasks[index]];
             setTasks(updatedTasks);
+            localStorage.setItem("Tasks", JSON.stringify(updatedTasks));
         }
     }
 
     function moveTaskDown(index) {
         if (index < tasks.length - 1) {
             const updatedTasks = [...tasks];
-            [updatedTasks[index], updatedTasks[index + 1]] = [updatedTasks[index + 1], updatedTasks[index]];
+            [updatedTasks[index], updatedTasks[index + 1]] =
+                [updatedTasks[index + 1], updatedTasks[index]];
             setTasks(updatedTasks);
+            localStorage.setItem("Tasks", JSON.stringify(updatedTasks));
         }
     }
 
@@ -63,7 +80,7 @@ function ToDoList() {
                     <button
                         className="delete-button"
                         onClick={() => deleteTask(index)}>
-                        Delete
+                        ✂
                     </button>
                     <button
                         className="move-button"
